@@ -1,0 +1,54 @@
+:root {
+  color-scheme: light dark;
+  --bg: #fafafa;
+  --fg: #1a1a1a;
+  --muted: #6b6b6b;
+  --card: #ffffff;
+  --line: #e4e4e4;
+  --accent: #1f6feb;
+  --target: #1a7f37;
+  --lotto: #b42318;
+  --high: #b54708;
+  --near: #6b6b6b;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111214;
+    --fg: #ececec;
+    --muted: #9a9a9a;
+    --card: #1b1c1f;
+    --line: #2c2d31;
+    --accent: #4c8dff;
+    --target: #3fb950;
+    --lotto: #ff6b62;
+    --high: #f0883e;
+    --near: #9a9a9a;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); }
+main { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; }
+h1 { font-size: 1.5rem; margin: 8px 0 4px; }
+.sub { color: var(--muted); margin: 0 0 16px; }
+.status { font-size: 0.9rem; color: var(--muted); margin: 0 0 16px; }
+.status.ready { color: var(--target); }
+.field { display: block; margin-bottom: 12px; }
+.field span { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+select, button { font: inherit; width: 100%; min-height: 48px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 0 12px; }
+button.primary { background: var(--accent); color: #fff; border: none; font-weight: 600; }
+button:disabled { opacity: 0.6; }
+.note { margin: 12px 0; color: var(--muted); }
+.result { margin-top: 20px; }
+.spot { font-weight: 600; margin: 0 0 8px; }
+.rows { list-style: none; padding: 0; margin: 0; }
+.row { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--near); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
+.row.band-TARGET { border-left-color: var(--target); }
+.row.band-LOTTO { border-left-color: var(--lotto); }
+.row.band-high { border-left-color: var(--high); }
+.line1 { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tag { margin-left: auto; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; }
+.line2, .line3 { font-size: 0.9rem; color: var(--muted); margin-top: 2px; }
+.fine { font-size: 0.8rem; color: var(--muted); margin-top: 12px; }
