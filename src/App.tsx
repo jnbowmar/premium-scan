@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { bandTag, scanChain, type CboeChain, type ScanResult } from './lib/screener'
 import { payForScan, SCAN_PRICE_NIM, SCAN_RECIPIENT, describeError, withTimeout } from './nimiq/pay'
+import { formatUsd, useNimUsd } from './nimiq/price'
 import { useNimiq } from './nimiq/useNimiq'
 
 interface DataIndex {
@@ -29,6 +30,8 @@ export default function App() {
   }, [])
 
   const paid = nimiq.status === 'ready' && Boolean(SCAN_RECIPIENT)
+  const nimUsd = useNimUsd()
+  const price = `${SCAN_PRICE_NIM} NIM${nimUsd ? ` (${formatUsd(SCAN_PRICE_NIM * nimUsd)})` : ''}`
 
   // Phone-test readout: proves the injected provider answers real calls, not just init().
   const [wallet, setWallet] = useState<string | null>(null)
@@ -74,7 +77,7 @@ export default function App() {
 
       <p className={`status ${nimiq.status}`}>
         {nimiq.status === 'connecting' && 'Connecting to Nimiq Pay…'}
-        {nimiq.status === 'ready' && (paid ? `Wallet connected. Each scan costs ${SCAN_PRICE_NIM} NIM.` : 'Wallet connected. Free demo mode (no recipient configured).')}
+        {nimiq.status === 'ready' && (paid ? `Wallet connected. Each scan costs ${price}.` : 'Wallet connected. Free demo mode (no recipient configured).')}
         {nimiq.status === 'unavailable' && 'Not inside Nimiq Pay. Running in free demo mode.'}
       </p>
       {wallet && <p className="status wallet">{wallet}</p>}
@@ -91,7 +94,7 @@ export default function App() {
       </label>
 
       <button className="primary" onClick={runScan} disabled={busy || !symbol}>
-        {busy ? 'Scanning…' : paid ? `Pay ${SCAN_PRICE_NIM} NIM and scan` : 'Scan (free demo)'}
+        {busy ? 'Scanning…' : paid ? `Pay ${price} and scan` : 'Scan (free demo)'}
       </button>
 
       {busy && (
