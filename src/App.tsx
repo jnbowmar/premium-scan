@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { bandTag, scanChain, type CboeChain, type ScanResult } from './lib/screener'
-import { payForScan, SCAN_PRICE_NIM, SCAN_RECIPIENT } from './nimiq/pay'
+import { payForScan, SCAN_PRICE_NIM, SCAN_RECIPIENT, describeError, withTimeout } from './nimiq/pay'
 import { useNimiq } from './nimiq/useNimiq'
 
 interface DataIndex {
@@ -30,6 +30,19 @@ export default function App() {
 
   const paid = nimiq.status === 'ready' && Boolean(SCAN_RECIPIENT)
 
+  // Phone-test readout: proves the injected provider answers real calls, not just init().
+  const [wallet, setWallet] = useState<string | null>(null)
+  useEffect(() => {
+    const p = nimiq.provider
+    if (!p) return
+    Promise.all([p.listAccounts(), p.isConsensusEstablished(), p.getBlockNumber()])
+      .then(([accounts, consensus, block]) => {
+        const acct = Array.isArray(accounts) ? `${accounts.length} account(s), ${accounts[0]?.slice(0, 9) ?? 'none'}…` : `accounts error: ${accounts.error.message}`
+        setWallet(`${acct} · consensus ${consensus ? 'yes' : 'no'} · block ${block}`)
+      })
+      .catch((e: unknown) => setWallet(`wallet check failed: ${e instanceof Error ? e.message : String(e)}`))
+  }, [nimiq.provider])
+
   async function runScan() {
     if (!symbol) return
     setBusy(true)
@@ -37,7 +50,8 @@ export default function App() {
     setResult(null)
     try {
       if (paid && nimiq.provider) {
-        const hash = await payForScan(nimiq.provider, `premium-scan ${symbol}`)
+        setMessage('Waiting for the wallet…')
+        const hash = await withTimeout(payForScan(nimiq.provider, `premium-scan ${symbol}`), 60_000)
         setMessage(`Paid ${SCAN_PRICE_NIM} NIM. tx ${hash.slice(0, 10)}…`)
       }
       const chain: CboeChain = await fetch(`data/${symbol}.json`).then((r) => r.json())
@@ -45,7 +59,7 @@ export default function App() {
       const asOf = chain.data.last_trade_time ? new Date(chain.data.last_trade_time) : new Date()
       setResult(scanChain(chain, asOf) ?? 'empty')
     } catch (e) {
-      setMessage(e instanceof Error ? e.message : String(e))
+      setMessage(describeError(e))
     } finally {
       setBusy(false)
     }
@@ -63,6 +77,7 @@ export default function App() {
         {nimiq.status === 'ready' && (paid ? `Wallet connected. Each scan costs ${SCAN_PRICE_NIM} NIM.` : 'Wallet connected. Free demo mode (no recipient configured).')}
         {nimiq.status === 'unavailable' && 'Not inside Nimiq Pay. Running in free demo mode.'}
       </p>
+      {wallet && <p className="status wallet">{wallet}</p>}
 
       <label className="field">
         <span>Ticker</span>
@@ -79,6 +94,11 @@ export default function App() {
         {busy ? 'Scanning…' : paid ? `Pay ${SCAN_PRICE_NIM} NIM and scan` : 'Scan (free demo)'}
       </button>
 
+      {busy && (
+        <button className="link" onClick={() => { setBusy(false); setMessage('Stopped waiting for the wallet.') }}>
+          Stop waiting
+        </button>
+      )}
       {message && <p className="note">{message}</p>}
 
       {result === 'empty' && <p className="note">Nothing on {symbol} clears 60% annualized after the liquidity floors.</p>}
