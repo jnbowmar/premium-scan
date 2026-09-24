@@ -1,5 +1,7 @@
 # Premium Scan
 
+[![test](https://github.com/jnbowmar/premium-scan/actions/workflows/test.yml/badge.svg)](https://github.com/jnbowmar/premium-scan/actions/workflows/test.yml)
+
 A [Nimiq Pay](https://nimiq.com) Mini App that answers one question for options premium sellers: **which cash-secured puts and covered calls on a ticker pay 60%+ annualized right now, and what is the market charging for?**
 
 Each scan costs a few cents in NIM. That is the point of the app, not the revenue: a working example of a pay-per-use tool that runs inside a wallet, with no account, no API key, and no app store commission.
