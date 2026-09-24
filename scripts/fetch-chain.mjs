@@ -20,7 +20,7 @@ if (syms.length === 0) {
 await mkdir(OUT, { recursive: true })
 const index = []
 for (const sym of syms) {
-  const url = `https://cdn.cboe.com/api/global/delayed_quotes/options/${sym}.json`
+  const url = `https://cdn-api.cboe.com/api/global/delayed_quotes/options/${sym}.json`
   const res = await fetch(url, { headers: { 'User-Agent': UA } })
   if (!res.ok) {
     console.error(`${sym}: HTTP ${res.status}`)
